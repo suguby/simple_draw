@@ -6,6 +6,8 @@
     v 2.1
 """
 
+from __future__ import print_function
+
 import pygame
 import math
 import time
@@ -172,7 +174,7 @@ def line(start_point, end_point, color=COLOR_YELLOW):
         Заканчивая точкой end
     """
     if not _is_point(start_point) or not _is_point(end_point):
-        print "'start' and 'end' params must be point (x,y,)"
+        print("'start' and 'end' params must be point (x,y,)")
         return
     _init()
     pygame.draw.line(_screen, color,
@@ -187,7 +189,7 @@ def lines(point_list, color=COLOR_YELLOW, closed=False):
         Если closed=True - соединить первую и последнюю точки
     """
     if not _contain_points(point_list):
-        print "'point_list' param must contain only points (x,y,)"
+        print("'point_list' param must contain only points (x,y,)")
         return
     _init()
     converted_point_list = [pos.to_screen() for pos in point_list]
@@ -204,7 +206,7 @@ def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
         Если width==0 то заполнить цветом 
     """
     if not _is_point(center_position):
-        print "'center_position' param must be point (x,y,)"
+        print("'center_position' param must be point (x,y,)")
         return
     _init()
     pygame.draw.circle(_screen, color,
@@ -220,7 +222,7 @@ def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         Если width==0 то заполнить цветом 
     """
     if not _is_point(left_bottom) or not _is_point(right_top):
-        print "'left_bottom' and 'right_top' params must be point (x,y,)"
+        print("'left_bottom' and 'right_top' params must be point (x,y,)")
         return
     _init()
     rect = _to_screen_rect(left_bottom, right_top)
@@ -249,7 +251,7 @@ def rectangle(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         Если width==0 то заполнить цветом 
     """
     if not _is_point(left_bottom) or not _is_point(right_top):
-        print "'left_bottom' and 'right_top' params must be point (x,y,)"
+        print("'left_bottom' and 'right_top' params must be point (x,y,)")
         return
     _init()
     if left_bottom.x > right_top.x or left_bottom.y > right_top.y:
@@ -267,7 +269,7 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
         Если width==0 то заполнить цветом 
     """
     if not _contain_points(point_list):
-        print "'point_list' param must contain only points (x,y,)"
+        print("'point_list' param must contain only points (x,y,)")
         return
     _init()
     converted_point_list = [pos.to_screen() for pos in point_list]
@@ -374,7 +376,7 @@ def vector(start, angle, length, color=COLOR_YELLOW):
         Длинной length
     """
     if not _is_point(start):
-        print "'start' param must be point (x,y,)"
+        print("'start' param must be point (x,y,)")
         return
     _init()
     v = Vector(start, angle, length)
