@@ -3,16 +3,17 @@
 
 """
     Библиотека для рисования графических примитивов
-    v 2.1
+    v 2.2
 """
 
 from __future__ import print_function
 
-import pygame
 import math
 import time
-import pygame.locals as pgl
 from random import choice, randint
+
+import pygame
+import pygame.locals as pgl
 
 _is_inited = False
 _screen = None
