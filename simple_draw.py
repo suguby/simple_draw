@@ -449,6 +449,9 @@ class Point:
     def y(self, value):
         self._y = int(value)
 
+    def __str__(self):
+        return 'Point(x={}, y={})'.format(self.x, self.y)
+
 
 def get_point(x,y):
     """
@@ -482,8 +485,13 @@ def get_mouse_state():
         получить состояние мыши - координаты и нажатую кнопку
     """
     mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
-    mouse_pos = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
+    mouse_pos_x, mouse_pos_y = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
+    mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
+    # точка на экране, где находится мышь
+
     mouse_buttons = pygame.mouse.get_pressed()
+    # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
+
     return mouse_pos, mouse_buttons
 
 
@@ -540,7 +548,8 @@ if __name__ == '__main__':
                 radius = random_number(30, 50)
                 point = Point(x=x, y=y)
                 snowflake(center=point, length=radius)
-                print("mouse_state is ", get_mouse_state())
+                mouse_point, mouse_buttons = get_mouse_state()
+                print("mouse_state is {} + {}".format(mouse_point, mouse_buttons))
             if user_want_exit(sleep_time=0.1):
                 break
         if user_want_exit(0):
