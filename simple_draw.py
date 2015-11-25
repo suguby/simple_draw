@@ -3,7 +3,7 @@
 
 """
     Библиотека для рисования графических примитивов
-    v 2.2
+    v 2.3
 """
 
 from __future__ import print_function
@@ -456,6 +456,7 @@ def get_point(x,y):
     """
     return Point(x=x,y=y)
 
+
 def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35, factor_c=60):
     """
         нарисовать снежинку в точке center с длинной лучей length цветом color
@@ -474,6 +475,16 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
         left_sub_arm.draw(color)
         right_sub_arm = Vector(arm.end_point, angle - factor_c, length * factor_b)
         right_sub_arm.draw(color)
+
+
+def get_mouse_state():
+    """
+        получить состояние мыши - координаты и нажатую кнопку
+    """
+    mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
+    mouse_pos = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
+    mouse_buttons = pygame.mouse.get_pressed()
+    return mouse_pos, mouse_buttons
 
 
 if __name__ == '__main__':
@@ -529,6 +540,7 @@ if __name__ == '__main__':
                 radius = random_number(30, 50)
                 point = Point(x=x, y=y)
                 snowflake(center=point, length=radius)
+                print("mouse_state is ", get_mouse_state())
             if user_want_exit(sleep_time=0.1):
                 break
         if user_want_exit(0):
