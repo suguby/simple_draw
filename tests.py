@@ -50,7 +50,7 @@ def main():
         v2.draw(color=COLOR_ORANGE)
     snowflake(center=Point(), length=60, factor_b=0.2, factor_c=100)
     sleep(2)
-    while True:
+    for k in range(2):
         y = 500
         for i in range(10):
             clear_screen()
@@ -65,7 +65,7 @@ def main():
                 break
         if user_want_exit(0):
             break
-    end()
+    # end()
 
 
 if __name__ == '__main__':
