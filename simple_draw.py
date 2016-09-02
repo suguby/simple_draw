@@ -464,7 +464,7 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
     """
         нарисовать снежинку в точке center с длинной лучей length цветом color
         factor_a - место ответвления лучиков
-        factor_b - длинна лучиков
+        factor_b - длина лучиков
         factor_c - угол отклонения лучиков
     """
     assert 0 < factor_a <= 1
