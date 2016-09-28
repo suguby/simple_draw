@@ -96,7 +96,7 @@ def user_want_exit(sleep_time=0.0):
         else:
             _exit_performed = False
         pygame.event.pump()
-    except pygame.error:
+    except pygame.error as exc:
         _exit_performed = True
     return _exit_performed
 
