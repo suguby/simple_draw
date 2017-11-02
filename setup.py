@@ -10,7 +10,7 @@ os.chdir(os.path.normpath(os.path.join(os.path.abspath(__file__), os.pardir)))
 
 setup(
     name='simple_draw',
-    version='2.4.2',
+    version='2.4.3',
     py_modules=["simple_draw"],
     license='BSD License',
     description='This package allows you to draw graphical primitives with pygame.',
@@ -30,7 +30,7 @@ setup(
         'Programming Language :: Python :: 3.5',
     ],
     keywords='draw graphical primitives tutorial',
-    # install_requires=[
-    #     'pygame'
-    # ]
+    install_requires=[
+        'pygame'
+    ]
 )

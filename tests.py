@@ -3,7 +3,7 @@
 
 from simple_draw import Point, polygon, lines, COLOR_DARK_ORANGE, line, square, rectangle, COLOR_DARK_GREEN, sleep, \
     clear_screen, vector, COLOR_PURPLE, random_point, random_color, random_number, circle, ellipse, Vector, COLOR_GREEN, \
-    COLOR_ORANGE, snowflake, get_mouse_state, user_want_exit, end
+    COLOR_ORANGE, snowflake, get_mouse_state, user_want_exit, pause
 
 
 def main():
@@ -65,8 +65,9 @@ def main():
                 break
         if user_want_exit(0):
             break
-    # end()
 
 
 if __name__ == '__main__':
     main()
+    # pause()
+

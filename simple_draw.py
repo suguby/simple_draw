@@ -101,7 +101,7 @@ def user_want_exit(sleep_time=0.0):
     return _exit_performed
 
 
-def end():
+def pause():
     """
         Завершение процесса рисования и ожидание закрытия окна
     """
