@@ -108,6 +108,7 @@ def pause():
     global _exit_performed
     while not _exit_performed:
         _exit_performed = user_want_exit(sleep_time=0.1)
+    pygame.quit()
 
 
 def _is_point(param):
