@@ -3,10 +3,11 @@
 
 from simple_draw import Point, polygon, lines, COLOR_DARK_ORANGE, line, square, rectangle, COLOR_DARK_GREEN, sleep, \
     clear_screen, vector, COLOR_PURPLE, random_point, random_color, random_number, circle, ellipse, Vector, COLOR_GREEN, \
-    COLOR_ORANGE, snowflake, get_mouse_state, user_want_exit, pause
+    COLOR_ORANGE, snowflake, get_mouse_state, user_want_exit, pause, set_screen_size, get_point, get_vector
 
 
 def main():
+    set_screen_size(600, 700)
     points = [Point(x=230, y=450), Point(x=240, y=460), Point(x=230, y=470), Point(x=240, y=480)]
     polygon(point_list=points)
     points2 = [Point(p.x + 20, p.y + 20) for p in points]
@@ -67,7 +68,25 @@ def main():
             break
 
 
+def branch(start, angle, lenght):
+    if lenght < 10:
+        return
+    width = int(lenght / 10)
+    vect = get_vector(start, angle, lenght, width=width)
+    vect.draw()
+    branch(vect.end_point, angle + random_number(20, 30), lenght * random_number(75, 85) / 100)
+    branch(vect.end_point, angle - random_number(20, 30), lenght * random_number(75, 85) / 100)
+
+
+def draw_fractal_tree():
+    set_screen_size(1400, 900)
+    start = get_point(700, 0)
+    branch(start, 90, 150)
+    pause()
+
+
 if __name__ == '__main__':
     main()
+    # draw_fractal_tree()
     # pause()
 

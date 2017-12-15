@@ -77,6 +77,11 @@ def _to_screen_rect(left_bottom, right_top):
     return pgl.Rect((left_bottom.x, resolution[1] - right_top.y), width_height)
 
 
+def set_screen_size(width=600, height=600):
+    global resolution
+    resolution = (width, height)
+
+
 def user_want_exit(sleep_time=0.0):
     """
         проверка ввода от пользователя
@@ -118,7 +123,7 @@ def _is_point(param):
     return isinstance(param, Point)
 
 
-def _contain_points(point_list):
+def _is_all_points(point_list):
     """
         все ли элементы списка - координаты?
     """
@@ -169,7 +174,7 @@ def random_point():
     return Point()
 
 
-def line(start_point, end_point, color=COLOR_YELLOW):
+def line(start_point, end_point, color=COLOR_YELLOW, width=1):
     """
         Нарисовать линию цветом color 
         Начиная с точки start 
@@ -180,7 +185,8 @@ def line(start_point, end_point, color=COLOR_YELLOW):
         return
     _init()
     pygame.draw.line(_screen, color,
-                     start_point.to_screen(), end_point.to_screen())
+                     start_point.to_screen(), end_point.to_screen(),
+                     width)
     pygame.display.flip()
 
 
@@ -190,7 +196,7 @@ def lines(point_list, color=COLOR_YELLOW, closed=False):
         Координаты вершин передаются в списке point_list
         Если closed=True - соединить первую и последнюю точки
     """
-    if not _contain_points(point_list):
+    if not _is_all_points(point_list):
         print("'point_list' param must contain only points (x,y,)")
         return
     _init()
@@ -270,7 +276,7 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
         Толщиной линии width. 
         Если width==0 то заполнить цветом 
     """
-    if not _contain_points(point_list):
+    if not _is_all_points(point_list):
         print("'point_list' param must contain only points (x,y,)")
         return
     _init()
@@ -279,16 +285,17 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
     pygame.display.flip()
 
 
-class Vector():
+class Vector:
     """Класс математического вектора"""
 
-    def __init__(self, start_point, direction, length):
+    def __init__(self, start_point, direction, length, width=1):
         """Создать вектор из точки start_point в направлении direction (градусы) длинной lenght"""
         self.start_point = start_point
         direction = (direction * math.pi) / 180
         self.dx = math.cos(direction) * length
         self.dy = math.sin(direction) * length
         self.module = length
+        self.width = width
 
     def _determine_module(self):
         return math.sqrt(self.dx ** 2 + self.dy ** 2)
@@ -330,7 +337,7 @@ class Vector():
         """
             Нарисовать вектор
         """
-        line(self.start_point, self.end_point, color)
+        line(start_point=self.start_point, end_point=self.end_point, color=color, width=self.width)
 
     def is_tiny(self):
         """
@@ -360,14 +367,13 @@ class Vector():
         return self.module
 
 
-
-def get_vector(start_point, angle, length):
+def get_vector(start_point, angle, length=100, width=1):
     """
         Получить вектор из точки start
         в направлении angle
         длинной length
     """
-    return Vector(start_point=start_point, direction=angle, length=length)
+    return Vector(start_point=start_point, direction=angle, length=length, width=width)
 
 
 def vector(start, angle, length, color=COLOR_YELLOW):
