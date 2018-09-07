@@ -1,0 +1,25 @@
+# -*- coding: utf-8 -*-
+
+background_color = (0, 8, 98)
+resolution = (600, 600)
+caption = 'Draw the sky'
+
+COLOR_WHITE = (255, 255, 255)
+COLOR_BLACK = (0, 0, 0)
+
+COLOR_RED = (255, 0, 0)
+COLOR_ORANGE = (255, 127, 0)
+COLOR_YELLOW = (255, 255, 0)
+COLOR_GREEN = (0, 255, 0)
+COLOR_CYAN = (0, 255, 255)
+COLOR_BLUE = (0, 0, 255)
+COLOR_PURPLE = (255, 0, 255)
+
+COLOR_DARK_YELLOW = (127, 127, 0)
+COLOR_DARK_ORANGE = (127, 63, 0)
+COLOR_DARK_RED = (127, 0, 0)
+COLOR_DARK_GREEN = (0, 127, 0)
+COLOR_DARK_CYAN = (0, 127, 127)
+COLOR_DARK_BLUE = (0, 0, 127)
+COLOR_DARK_PURPLE = (127, 0, 127)
+
