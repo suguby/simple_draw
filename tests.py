@@ -143,7 +143,7 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
+    main()
     draw_fractal_tree()
     sd.sleep(2)
     massive_snowfall()
