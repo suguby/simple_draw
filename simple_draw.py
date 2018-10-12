@@ -266,7 +266,7 @@ def line(start_point, end_point, color=COLOR_YELLOW, width=1):
         pygame.display.flip()
 
 
-def lines(point_list, color=COLOR_YELLOW, closed=False):
+def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
     """
         Нарисовать ломанную линию цветом color
         Координаты вершин передаются в списке point_list
@@ -277,7 +277,7 @@ def lines(point_list, color=COLOR_YELLOW, closed=False):
         return
     _init()
     converted_point_list = [pos.to_screen() for pos in point_list]
-    pygame.draw.lines(_screen, color, closed, converted_point_list)
+    pygame.draw.lines(_screen, color, closed, converted_point_list, width)
     if _auto_flip:
         pygame.display.flip()
 
