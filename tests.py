@@ -5,27 +5,34 @@ import simple_draw as sd
 
 
 def first_screen():
-    points = [sd.Point(x=230, y=450), sd.Point(x=240, y=460), sd.Point(x=230, y=470), sd.Point(x=240, y=480)]
+    points = [
+        sd.Point(x=230, y=450),
+        sd.Point(x=240, y=460),
+        sd.Point(x=230, y=470),
+        sd.Point(x=240, y=480),
+    ]
     sd.polygon(point_list=points)
     points2 = [sd.Point(p.x + 20, p.y + 20) for p in points]
-    sd.lines(point_list=points2, color=sd.COLOR_DARK_ORANGE)
-    sd.line(start_point=sd.Point(x=20, y=20), end_point=sd.Point(x=40, y=300))
-    sd.square(left_bottom=sd.Point(400, 300, ), side=100)
+    sd.lines(point_list=points2, color=sd.COLOR_DARK_ORANGE, width=2)
+    sd.line(start_point=sd.Point(x=20, y=20), end_point=sd.Point(x=40, y=300), width=2)
+    sd.square(left_bottom=sd.Point(400, 300, ), side=100, width=2)
     sd.rectangle(
         left_bottom=sd.Point(x=200, y=200),
         right_top=sd.Point(x=300, y=300),
-        color=sd.COLOR_DARK_GREEN
+        color=sd.COLOR_DARK_GREEN,
+        width=2,
     )
     sd.rectangle(
         left_bottom=sd.Point(x=400, y=300),
         right_top=sd.Point(x=300, y=400),
-        color=sd.COLOR_DARK_GREEN
+        color=sd.COLOR_DARK_GREEN,
+        width=2,
     )
 
 
 def second_screen():
     sd.start_drawing()
-    sd.vector(start=sd.Point(x=230, y=260), angle=70, length=200, color=sd.COLOR_PURPLE)
+    sd.vector(start=sd.Point(x=230, y=260), angle=70, length=200, color=sd.COLOR_PURPLE, width=2)
     for i in range(10):
         point = sd.random_point()
         color = sd.random_color()
@@ -42,12 +49,12 @@ def third_screen():
         dy = sd.random_number(30, 100)
         right_top = sd.Point(x=point.x + dx, y=point.y + dy)
         sd.ellipse(left_bottom=point, right_top=right_top, color=color)
-    v3 = sd.Vector(start_point=sd.Point(0, 0), direction=45, length=50)
+    v3 = sd.Vector(start_point=sd.Point(0, 0), direction=90, length=50)
     for direction in range(0, 181, 20):
         v = sd.Vector(start_point=sd.Point(x=300, y=300), direction=direction, length=100)
-        v.draw()
+        v.draw(width=3)
         v2 = sd.Vector(start_point=v.end_point, direction=direction + 30, length=50)
-        v2.draw(color=sd.COLOR_GREEN)
+        v2.draw(color=sd.COLOR_GREEN, width=2)
         v2.add(v3)
         v2.draw(color=sd.COLOR_ORANGE)
     sd.snowflake(center=sd.Point(), length=60, factor_b=0.2, factor_c=100)
@@ -117,9 +124,8 @@ def massive_snowfall():
 def branch(start, angle, lenght):
     if lenght < 10:
         return
-    width = int(lenght / 10)
-    vect = sd.get_vector(start, angle, lenght, width=width)
-    vect.draw()
+    vect = sd.get_vector(start_point=start, angle=angle, length=lenght)
+    vect.draw(width=int(lenght / 10))
     branch(vect.end_point, angle + sd.random_number(20, 30), lenght * sd.random_number(75, 85) / 100)
     branch(vect.end_point, angle - sd.random_number(20, 30), lenght * sd.random_number(75, 85) / 100)
 
