@@ -440,7 +440,10 @@ class Vector:
     """Класс математического вектора"""
 
     def __init__(self, start_point, direction, length, width=1):
-        """Создать вектор из точки start_point в направлении direction (градусы) длинной lenght"""
+        """
+            Создать вектор из точки start_point в направлении direction (градусы) длинной lenght
+            Внимание! Параметр width в следующей версии будет удален, используйте .draw(..., width)
+        """
         self.start_point = start_point
         direction = (direction * math.pi) / 180
         self.dx = math.cos(direction) * length
@@ -484,11 +487,12 @@ class Vector:
         """Проверка на пустоту"""
         return int(self.module)
 
-    def draw(self, color=COLOR_YELLOW):
+    def draw(self, color=COLOR_YELLOW, width=None):
         """
             Нарисовать вектор
         """
-        line(start_point=self.start_point, end_point=self.end_point, color=color, width=self.width)
+        width = width if width else self.width
+        line(start_point=self.start_point, end_point=self.end_point, color=color, width=width)
 
     def is_tiny(self):
         """
@@ -520,24 +524,23 @@ class Vector:
 
 def get_vector(start_point, angle, length=100, width=1):
     """
-        Получить вектор из точки start
-        в направлении angle
-        длинной length
+        Получить вектор из точки start, в направлении angle, длиной length
+        Внимание! Параметр width в следующей версии будет удален, используйте Vector.draw(..., width)
     """
     return Vector(start_point=start_point, direction=angle, length=length, width=width)
 
 
-def vector(start, angle, length, color=COLOR_YELLOW):
+def vector(start, angle, length, color=COLOR_YELLOW, width=1):
     """
-        Нарисовать вектор цветом color
+        Нарисовать вектор цветом color толщиной width
         Из точки start
         В направлении angle
-        Длинной length
+        Длиной length
     """
     if not _is_point(start):
         print("'start' param must be point (x,y,)")
         return
     _init()
-    v = Vector(start, angle, length)
-    v.draw(color)
+    v = Vector(start_point=start, direction=angle, length=length)
+    v.draw(color=color, width=width)
     return v.end_point
