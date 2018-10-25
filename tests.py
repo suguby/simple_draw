@@ -4,6 +4,12 @@
 import simple_draw as sd
 
 
+def zero_screen():
+    """test pygame init without any figures"""
+    sd.start_drawing()
+    sd.finish_drawing()
+
+
 def first_screen():
     points = [
         sd.Point(x=230, y=450),
@@ -137,6 +143,7 @@ def draw_fractal_tree():
 
 def main():
     sd.set_screen_size(600, 700)
+    zero_screen()
     first_screen()
     sd.sleep(2)
     sd.clear_screen()

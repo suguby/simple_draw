@@ -127,6 +127,7 @@ def start_drawing():
         Начать рисование на экране без автоматического отображения
     """
     global _auto_flip
+    _init()
     _auto_flip = False
 
 
@@ -135,6 +136,7 @@ def finish_drawing():
         Закончить рисование на экране и отобразить нарисованное
     """
     global _auto_flip
+    _init()
     _auto_flip = True
     pygame.display.flip()
 
