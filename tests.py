@@ -1,7 +1,11 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+import os
+import shutil
 
 import simple_draw as sd
+
+# TAKE_SNAPSHOTS = False
+TAKE_SNAPSHOTS = True
+SNAPSHOTS_PATH = 'tmp'
 
 
 def zero_screen():
@@ -34,6 +38,8 @@ def first_screen():
         color=sd.COLOR_DARK_GREEN,
         width=2,
     )
+    if TAKE_SNAPSHOTS:
+        sd.take_snapshot(path=SNAPSHOTS_PATH)
 
 
 def second_screen():
@@ -45,6 +51,8 @@ def second_screen():
         radius = sd.random_number(20, 60)
         sd.circle(center_position=point, radius=radius, color=color, width=0)
     sd.finish_drawing()
+    if TAKE_SNAPSHOTS:
+        sd.take_snapshot(file_name='second_screen.png', path=SNAPSHOTS_PATH)
 
 
 def third_screen():
@@ -64,6 +72,8 @@ def third_screen():
         v2.add(v3)
         v2.draw(color=sd.COLOR_ORANGE)
     sd.snowflake(center=sd.Point(), length=60, factor_b=0.2, factor_c=100)
+    if TAKE_SNAPSHOTS:
+        sd.take_snapshot(path=SNAPSHOTS_PATH)
 
 
 def snowfall():
@@ -121,6 +131,8 @@ def massive_snowfall():
         for _ in range(fallen_count):
             flakes.append(Snowflake())
         sd.finish_drawing()
+        if TAKE_SNAPSHOTS:
+            sd.take_snapshot(path=SNAPSHOTS_PATH)
         mouse_point, mouse_buttons = sd.get_mouse_state()
         print("mouse_state is {} + {}".format(mouse_point, mouse_buttons))
         if sd.user_want_exit(sleep_time=0.1):
@@ -156,6 +168,9 @@ def main():
 
 
 if __name__ == '__main__':
+    if TAKE_SNAPSHOTS:
+        shutil.rmtree(SNAPSHOTS_PATH, ignore_errors=True)
+        os.mkdir(SNAPSHOTS_PATH)
     main()
     draw_fractal_tree()
     sd.sleep(2)

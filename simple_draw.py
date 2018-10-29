@@ -4,8 +4,9 @@
     Библиотека для рисования графических примитивов
     v 2.4
 """
-
+import datetime
 import math
+import os
 import time
 from random import choice, randint
 
@@ -248,6 +249,19 @@ def cos(angle):
         Косинус угла в градусах
     """
     return math.cos(_to_radians(angle))
+
+
+def take_snapshot(file_name=None, path=None):
+    """
+        сделать снимок экрана и сохранить его в файл
+    """
+    if file_name is None:
+        now = datetime.datetime.now()
+        current_time = now.strftime('%Y%m%d_%H%M%S_%f')
+        file_name = 'sd_snapshot_{}.png'.format(current_time)
+    if path:
+        file_name = os.path.join(path, file_name)
+    pygame.image.save(_screen, file_name)
 
 
 # Primitives
