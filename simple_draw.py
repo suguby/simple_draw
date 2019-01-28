@@ -7,6 +7,7 @@
 import datetime
 import math
 import os
+import tempfile
 import time
 from random import choice, randint
 
@@ -41,6 +42,7 @@ _screen = None
 _background = None
 _exit_performed = False
 _auto_flip = True
+_background_image = None
 
 
 # Core functions
@@ -249,6 +251,25 @@ def cos(angle):
         Косинус угла в градусах
     """
     return math.cos(_to_radians(angle))
+
+
+def take_background():
+    """
+        Сохранить снимок экрана во временный файл для фона
+    """
+    global _background_image
+    tempfile.gettempdir()
+    file_name_img = os.path.join(tempfile.tempdir, "sd_background_image.png")
+    take_snapshot(file_name=file_name_img)
+    _background_image = pygame.image.load(file_name_img)
+
+
+def draw_background():
+    """
+        Вывести картинку в фон
+    """
+    if _background_image is not None:
+        _screen.blit(_background_image, (0, 0))
 
 
 def take_snapshot(file_name=None, path=None):
