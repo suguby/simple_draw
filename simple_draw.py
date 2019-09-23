@@ -94,6 +94,7 @@ def user_want_exit(sleep_time=0):
     if sleep_time:
         sleep(sleep_time)
     try:
+        _init()
         for event in pygame.event.get():
             if (event.type == pgl.QUIT) \
                     or (event.type == pgl.KEYDOWN and event.key == pgl.K_ESCAPE) \
@@ -155,6 +156,7 @@ def clear_screen():
     """
         очистить экран
     """
+    _init()
     if _background:
         _background.fill(background_color)  # заполняем цветом
         _screen.blit(_background, (0, 0))
@@ -165,6 +167,7 @@ def get_mouse_state():
     """
         получить состояние мыши - координаты и нажатую кнопку
     """
+    _init()
     mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
     mouse_pos_x, mouse_pos_y = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
     mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
@@ -258,6 +261,7 @@ def take_background():
         Сохранить снимок экрана во временный файл для фона
     """
     global _background_image
+    _init()
     tempfile.gettempdir()
     file_name_img = os.path.join(tempfile.tempdir, "sd_background_image.png")
     take_snapshot(file_name=file_name_img)
@@ -268,6 +272,7 @@ def draw_background():
     """
         Вывести картинку в фон
     """
+    _init()
     if _background_image is not None:
         _screen.blit(_background_image, (0, 0))
 
@@ -282,6 +287,7 @@ def take_snapshot(file_name=None, path=None):
         file_name = 'sd_snapshot_{}.png'.format(current_time)
     if path:
         file_name = os.path.join(path, file_name)
+    _init()
     pygame.image.save(_screen, file_name)
 
 
