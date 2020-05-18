@@ -11,12 +11,11 @@ import tempfile
 import time
 from random import choice, randint
 
-import pygame
-from pygame import locals as pgl
+import turtle
 
 background_color = (0, 8, 98)
 resolution = (600, 600)
-caption = 'Draw the sky'
+caption = 'Draw the Turtle!'
 
 COLOR_WHITE = (255, 255, 255)
 COLOR_BLACK = (0, 0, 0)
@@ -41,8 +40,10 @@ _is_inited = False
 _screen = None
 _background = None
 _exit_performed = False
+_listen_exit = False
 _auto_flip = True
 _background_image = None
+_turtle = None
 
 
 # Core functions
@@ -50,17 +51,23 @@ def _init():
     """
         Инициализация экрана для рисования
     """
-    global _screen, _background, _is_inited
+    global _screen, _turtle, _is_inited
     if not _is_inited:
-        pygame.init()
-        screen_rectangle = pgl.Rect((0, 0), resolution)
-        _screen = pygame.display.set_mode(screen_rectangle.size)
-        pygame.display.set_caption(caption)
-        _background = pygame.Surface(_screen.get_size())  # и ее размер
-        _background = _background.convert()
-        _background.fill(background_color)  # заполняем цветом
-        _screen.blit(_background, (0, 0))
-        pygame.display.flip()
+        _screen = turtle.Screen()
+        _screen.title(caption)
+        # Докидываем несколько пикселей чтобы избавиться от полос прокрутки
+        _screen.setup(resolution[0] + 4, resolution[1] + 8)
+        _screen.setworldcoordinates(8, 7, *resolution)
+        _screen.colormode(255)
+        _screen.bgcolor(background_color)
+        _screen.tracer(n=2)
+        _screen.update()
+
+        _turtle = turtle.Turtle()
+        _turtle.screen = _screen
+        _turtle.hideturtle()
+        _turtle.penup()
+        _turtle.speed(0)
         _is_inited = True
 
 
@@ -68,15 +75,14 @@ def _to_screen(x, y):
     """
         Преобразовать координаты к экранным
     """
-    return int(x), resolution[1] - int(y)
+    return int(x), int(y)
 
 
 def _to_screen_rect(left_bottom, right_top):
     """
-        Получить прямоуголник в экранных координатах, готовый к отрисовке
+        Получить ширину и высоту прямоуголника в экранных координатах
     """
-    width_height = (right_top.x - left_bottom.x, right_top.y - left_bottom.y)
-    return pgl.Rect((left_bottom.x, resolution[1] - right_top.y), width_height)
+    return right_top.x - left_bottom.x, right_top.y - left_bottom.y
 
 
 def set_screen_size(width=600, height=600):
@@ -84,53 +90,52 @@ def set_screen_size(width=600, height=600):
     resolution = (width, height)
 
 
-def user_want_exit(sleep_time=0):
+def user_want_exit(sleep_time=None):
     """
         проверка ввода от пользователя
     """
-    global _exit_performed
-    if _exit_performed:
-        return True
+    run_exit_listener()
     if sleep_time:
         sleep(sleep_time)
-    try:
-        _init()
-        for event in pygame.event.get():
-            if (event.type == pgl.QUIT) \
-                    or (event.type == pgl.KEYDOWN and event.key == pgl.K_ESCAPE) \
-                    or (event.type == pgl.KEYDOWN and event.key == pgl.K_q):
-                _exit_performed = True
-                break
-        else:
-            _exit_performed = False
-        pygame.event.pump()
-    except pygame.error as exc:
-        _exit_performed = True
     return _exit_performed
+
+
+# Пара костылей для сохранения обратной совместимости
+def set_exit_performed():
+    global _exit_performed
+    _exit_performed = True
+
+
+def run_exit_listener():
+    global _listen_exit
+    if not _listen_exit:
+        _screen.onkey(set_exit_performed, 'Q')
+        _screen.onkey(set_exit_performed, 'q')
+        _screen.onkey(set_exit_performed, 'Escape')
+        _screen.listen()
+        _listen_exit = True
 
 
 def pause():
     """
         Завершение процесса рисования и ожидание закрытия окна
     """
-    global _exit_performed
-    while not _exit_performed:
-        _exit_performed = user_want_exit(sleep_time=0.1)
-    pygame.quit()
+    user_want_exit(sleep_time=0.1)
+    turtle.done()
 
 
 def quit():
     """
         Завершение процесса рисования, освобождение ресурсов
     """
-    pygame.quit()
+    _screen.bye()
 
 
 def start_drawing():
     """
         Начать рисование на экране без автоматического отображения
     """
-    global _auto_flip
+    global _auto_flip, _screen
     _init()
     _auto_flip = False
 
@@ -139,10 +144,10 @@ def finish_drawing():
     """
         Закончить рисование на экране и отобразить нарисованное
     """
-    global _auto_flip
+    global _auto_flip, _screen
     _init()
     _auto_flip = True
-    pygame.display.flip()
+    _screen.update()
 
 
 def sleep(seconds=0):
@@ -157,10 +162,8 @@ def clear_screen():
         очистить экран
     """
     _init()
-    if _background:
-        _background.fill(background_color)  # заполняем цветом
-        _screen.blit(_background, (0, 0))
-        pygame.display.flip()
+    _turtle.reset()
+    _turtle.shape('blank')
 
 
 def get_mouse_state():
@@ -168,15 +171,17 @@ def get_mouse_state():
         получить состояние мыши - координаты и нажатую кнопку
     """
     _init()
-    mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
-    mouse_pos_x, mouse_pos_y = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
-    mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
-    # точка на экране, где находится мышь
+    # TODO До этого момента ещё не добрался
 
-    mouse_buttons = pygame.mouse.get_pressed()
-    # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
-
-    return mouse_pos, mouse_buttons
+    # mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
+    # mouse_pos_x, mouse_pos_y = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
+    # mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
+    # # точка на экране, где находится мышь
+    #
+    # mouse_buttons = pygame.mouse.get_pressed()
+    # # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
+    #
+    # return mouse_pos, mouse_buttons
 
 
 # Utils
@@ -263,32 +268,50 @@ def take_background():
     global _background_image
     _init()
     tempfile.gettempdir()
-    file_name_img = os.path.join(tempfile.tempdir, "sd_background_image.png")
+    file_name_img = os.path.join(tempfile.tempdir, 'sd_background_image')
     take_snapshot(file_name=file_name_img)
-    _background_image = pygame.image.load(file_name_img)
+    _background_image = file_name_img + '.gif'
 
 
 def draw_background():
     """
         Вывести картинку в фон
     """
+    global _screen
     _init()
     if _background_image is not None:
-        _screen.blit(_background_image, (0, 0))
+        _screen.bgpic(_background_image)
 
 
+# TODO разобраться с этим добром
 def take_snapshot(file_name=None, path=None):
     """
         сделать снимок экрана и сохранить его в файл
     """
+    from PIL import Image, ImageGrab
     if file_name is None:
         now = datetime.datetime.now()
         current_time = now.strftime('%Y%m%d_%H%M%S_%f')
-        file_name = 'sd_snapshot_{}.png'.format(current_time)
+        file_name = 'sd_snapshot_{}'.format(current_time)
     if path:
         file_name = os.path.join(path, file_name)
     _init()
-    pygame.image.save(_screen, file_name)
+    # _screen.getcanvas().postscript(file=file_name + '.eps')
+    x = _screen._root.winfo_x()
+    y = _screen._root.winfo_y()
+    img = Image.open(file_name + '.eps')
+    img.save(file_name + 'aaaa.png')
+    # ImageGrab.grab().crop((x, y, x+resolution[0], y+resolution[1])).save(file_name + '.gif')
+
+
+def _set_params(turtle, color, width):
+    """
+        задать параметры рисования фигуры
+    """
+    turtle.penup()
+    turtle.pencolor(*color)
+    turtle.fillcolor(*color)
+    turtle.pensize(width)
 
 
 # Primitives
@@ -302,11 +325,14 @@ def line(start_point, end_point, color=COLOR_YELLOW, width=1):
         print("'start_point' and 'end_point' params must be point (x,y,)")
         return
     _init()
-    pygame.draw.line(_screen, color,
-                     start_point.to_screen(), end_point.to_screen(),
-                     width)
+    _set_params(_turtle, color, width)
+    _turtle.penup()
+    _turtle.setpos(*start_point.to_screen())
+    _turtle.pendown()
+    _turtle.setpos(*end_point.to_screen())
+    _turtle.penup()
     if _auto_flip:
-        pygame.display.flip()
+        _screen.update()
 
 
 def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
@@ -320,9 +346,17 @@ def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
         return
     _init()
     converted_point_list = [pos.to_screen() for pos in point_list]
-    pygame.draw.lines(_screen, color, closed, converted_point_list, width)
+    if closed:
+        converted_point_list.append(converted_point_list[0])
+    _set_params(_turtle, color, width)
+    _turtle.penup()
+    _turtle.setpos(*converted_point_list[0])
+    _turtle.pendown()
+    for point in converted_point_list[1:]:
+        _turtle.setpos(*point)
+    _turtle.penup()
     if _auto_flip:
-        pygame.display.flip()
+        _screen.update()
 
 
 def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
@@ -337,10 +371,17 @@ def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
         print("'center_position' param must be point (x,y,)")
         return
     _init()
-    pygame.draw.circle(_screen, color,
-                       center_position.to_screen(), radius, width)
+    _set_params(_turtle, color, width)
+    _turtle.penup()
+    _turtle.setpos(center_position.to_screen()[0], center_position.to_screen()[1] - radius)
+    _turtle.pendown()
+    if not width:
+        _turtle.begin_fill()
+    _turtle.circle(radius)
+    _turtle.end_fill()
+    _turtle.penup()
     if _auto_flip:
-        pygame.display.flip()
+        _screen.update()
 
 
 def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
@@ -354,10 +395,26 @@ def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         print("'left_bottom' and 'right_top' params must be point (x,y,)")
         return
     _init()
-    rect = _to_screen_rect(left_bottom, right_top)
-    pygame.draw.ellipse(_screen, color, rect, width)
+    width_height = _to_screen_rect(left_bottom, right_top)
+    _set_params(_turtle, color, width)
+    _turtle.penup()
+
+    # у черепашки нет своего овала, так что немного несложной математики
+    _turtle.goto(left_bottom.to_screen()[0] + width_height[0] // 2,
+                 left_bottom.to_screen()[1] + width_height[1])
+    _turtle.pendown()
+    if not width:
+        _turtle.begin_fill()
+    for i in range(0, 361, 10):
+        t = i * (math.pi / 180)
+        x = width_height[0] * math.sin(t) // 2
+        y = width_height[1] * math.cos(t) // 2
+        _turtle.goto(x + left_bottom.to_screen()[0] + width_height[0] // 2,
+                     y + left_bottom.to_screen()[1] + width_height[1] // 2)
+    _turtle.penup()
+    _turtle.end_fill()
     if _auto_flip:
-        pygame.display.flip()
+        _screen.update()
 
 
 def square(left_bottom, side=50, color=COLOR_YELLOW, width=0):
@@ -384,12 +441,14 @@ def rectangle(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         print("'left_bottom' and 'right_top' params must be point (x,y,)")
         return
     _init()
-    if left_bottom.x > right_top.x or left_bottom.y > right_top.y:
-        color = invert_color(color)
-    rect = _to_screen_rect(left_bottom, right_top)
-    pygame.draw.rect(_screen, color, rect, width)
+    points = [left_bottom, Point(left_bottom.x, right_top.y),
+              right_top, Point(right_top.x, left_bottom.y)]
+    if not width:
+        _turtle.begin_fill()
+    lines(points, color=color, width=width, closed=True)
+    _turtle.end_fill()
     if _auto_flip:
-        pygame.display.flip()
+        _screen.update()
 
 
 def polygon(point_list, color=COLOR_YELLOW, width=1):
@@ -403,10 +462,12 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
         print("'point_list' param must contain only points (x,y,)")
         return
     _init()
-    converted_point_list = [pos.to_screen() for pos in point_list]
-    pygame.draw.polygon(_screen, color, converted_point_list, width)
+    if not width:
+        _turtle.begin_fill()
+    lines(point_list, color=color, width=width, closed=True)
+    _turtle.end_fill()
     if _auto_flip:
-        pygame.display.flip()
+        _screen.update()
 
 
 def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35, factor_c=60):
@@ -417,7 +478,7 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
         factor_c - угол отклонения лучиков
     """
     assert 0 < factor_a <= 1
-    assert 0 < factor_b <= 1
+    assert 0 < factor_a <= 1
     assert 0 < factor_c < 180
     global _auto_flip
     if _auto_flip:
@@ -434,10 +495,10 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
         right_sub_arm = Vector(arm.end_point, angle - factor_c, length * factor_b)
         right_sub_arm.draw(color)
     if restore_auto_flip:
-        pygame.display.flip()
+        _screen.update()
         _auto_flip = True
-        
-        
+
+
 # Point support
 class Point:
     """
@@ -449,7 +510,7 @@ class Point:
         self._y = random_number(1, resolution[1]) if y is None else int(y)
 
     def to_screen(self):
-        return int(self._x), resolution[1] - int(self._y)
+        return int(self._x), int(self._y)
 
     @property
     def x(self):
@@ -471,7 +532,7 @@ class Point:
         return 'Point(x={}, y={})'.format(self.x, self.y)
 
 
-def get_point(x,y):
+def get_point(x, y):
     """
         получить точку в координате (x,y)
     """
