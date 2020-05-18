@@ -44,23 +44,44 @@ _listen_exit = False
 _auto_flip = True
 _background_image = None
 _turtle = None
+_scroll_koef = (4, 8)
+_mouse_buttons_state = [0, 0, 0]
+_mouse_click_time = 0.1     # Сколько времени в секундах после клика считать нажатой кнопку мыши
+_mouse_click_timings = [0, 0, 0]
 
 
 # Core functions
+
+def _init_mouse_handlers(button_number):
+    def _set_mouse_buttons_state(*args, **kwargs):      # оставил арги и кварги, потому что onclick передаёт координаты
+        global _mouse_buttons_state, _mouse_click_timings
+        _mouse_buttons_state[button_number] = 1
+        _mouse_click_timings[button_number] = time.time()
+    return _set_mouse_buttons_state
+
+
+def _check_mouse_click_timings():
+    global _mouse_buttons_state, _mouse_click_timings
+    for button, timing in enumerate(_mouse_click_timings):
+        if _mouse_buttons_state[button] and time.time() - timing > _mouse_click_time:
+            _mouse_buttons_state[button] = 0
+
+
 def _init():
     """
         Инициализация экрана для рисования
     """
-    global _screen, _turtle, _is_inited
+    global _screen, _turtle, _is_inited, _mouse_buttons_state
+    _check_mouse_click_timings()
     if not _is_inited:
         _screen = turtle.Screen()
         _screen.title(caption)
         # Докидываем несколько пикселей чтобы избавиться от полос прокрутки
-        _screen.setup(resolution[0] + 4, resolution[1] + 8)
+        _screen.setup(resolution[0] + _scroll_koef[0], resolution[1] + _scroll_koef[1])
         _screen.setworldcoordinates(8, 7, *resolution)
         _screen.colormode(255)
         _screen.bgcolor(background_color)
-        _screen.tracer(n=2)
+        _screen.tracer(n=0)
         _screen.update()
 
         _turtle = turtle.Turtle()
@@ -68,6 +89,19 @@ def _init():
         _turtle.hideturtle()
         _turtle.penup()
         _turtle.speed(0)
+
+        # черепаха у мыши обрабатывает только клики, поэтому немного поизвращаемся, чтобы приближенно сэмулировать
+        # работу get_pressed из pygame
+        # собираем функции-обработчики кликов мышью и вешаем их на клики
+        buttons_assoc = [1, 3, 2]   # у черепахи порядок кнопок мыши отличается от pygame, поэтому скорректируем его
+        for button in range(0, 3):
+            handler = _init_mouse_handlers(button)
+            _screen.onclick(handler, buttons_assoc[button])
+
+        _screen.onkey(_screen.bye, 'Q')
+        _screen.onkey(_screen.bye, 'q')
+        _screen.onkey(_screen.bye, 'Escape')
+        _screen.listen()
         _is_inited = True
 
 
@@ -90,37 +124,21 @@ def set_screen_size(width=600, height=600):
     resolution = (width, height)
 
 
+# deprecated. Сейчас система в фоне ждёт нажатия кнопок выхода с самого момента инициализации
 def user_want_exit(sleep_time=None):
     """
         проверка ввода от пользователя
     """
-    run_exit_listener()
-    if sleep_time:
-        sleep(sleep_time)
-    return _exit_performed
+    pass
 
 
-# Пара костылей для сохранения обратной совместимости
-def set_exit_performed():
-    global _exit_performed
-    _exit_performed = True
 
-
-def run_exit_listener():
-    global _listen_exit
-    if not _listen_exit:
-        _screen.onkey(set_exit_performed, 'Q')
-        _screen.onkey(set_exit_performed, 'q')
-        _screen.onkey(set_exit_performed, 'Escape')
-        _screen.listen()
-        _listen_exit = True
 
 
 def pause():
     """
         Завершение процесса рисования и ожидание закрытия окна
     """
-    user_want_exit(sleep_time=0.1)
     turtle.done()
 
 
@@ -171,17 +189,15 @@ def get_mouse_state():
         получить состояние мыши - координаты и нажатую кнопку
     """
     _init()
-    # TODO До этого момента ещё не добрался
-
-    # mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
-    # mouse_pos_x, mouse_pos_y = _to_screen(x=mouse_pos_x, y=mouse_pos_y)
-    # mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
-    # # точка на экране, где находится мышь
+    canvas = _screen.getcanvas()
+    # знаю, что protected элементы лучше не трогать, но другого выбора нет. Но я его не изменяю, а только читаю
+    mouse_pos_x = canvas.winfo_pointerx() - _screen._root.winfo_rootx() - _scroll_koef[0]
+    mouse_pos_y = canvas.winfo_pointery() - _screen._root.winfo_rooty() - resolution[1]
+    mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
+    #  _mouse_buttons_state - кортеж вида (1,0,0),
+    #  где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
     #
-    # mouse_buttons = pygame.mouse.get_pressed()
-    # # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
-    #
-    # return mouse_pos, mouse_buttons
+    return mouse_pos, _mouse_buttons_state
 
 
 # Utils
@@ -300,7 +316,7 @@ def take_snapshot(file_name=None, path=None):
     x = _screen._root.winfo_x()
     y = _screen._root.winfo_y()
     img = Image.open(file_name + '.eps')
-    img.save(file_name + 'aaaa.png')
+    img.save(file_name + '.png')
     # ImageGrab.grab().crop((x, y, x+resolution[0], y+resolution[1])).save(file_name + '.gif')
 
 
