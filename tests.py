@@ -3,8 +3,8 @@ import shutil
 
 import simple_draw as sd
 
-# TAKE_SNAPSHOTS = False
-TAKE_SNAPSHOTS = True
+TAKE_SNAPSHOTS = False
+# TAKE_SNAPSHOTS = True
 SNAPSHOTS_PATH = 'tmp'
 
 

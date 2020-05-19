@@ -33,6 +33,7 @@ setup(
     ],
     keywords='draw graphical primitives tutorial',
     install_requires=[
-        'pygame'
+        'pygame',
+        'pillow==7.1.2'
     ]
 )
