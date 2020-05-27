@@ -494,7 +494,7 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
         factor_c - угол отклонения лучиков
     """
     assert 0 < factor_a <= 1
-    assert 0 < factor_a <= 1
+    assert 0 < factor_b <= 1
     assert 0 < factor_c < 180
     global _auto_flip
     if _auto_flip:
