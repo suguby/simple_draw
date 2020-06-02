@@ -139,13 +139,13 @@ def massive_snowfall():
             break
 
 
-def branch(start, angle, lenght):
-    if lenght < 10:
+def branch(start, angle, length):
+    if length < 10:
         return
-    vect = sd.get_vector(start_point=start, angle=angle, length=lenght)
-    vect.draw(width=int(lenght / 10))
-    branch(vect.end_point, angle + sd.random_number(20, 30), lenght * sd.random_number(75, 85) / 100)
-    branch(vect.end_point, angle - sd.random_number(20, 30), lenght * sd.random_number(75, 85) / 100)
+    vect = sd.get_vector(start_point=start, angle=angle, length=length)
+    vect.draw(width=int(length / 10))
+    branch(vect.end_point, angle + sd.random_number(20, 30), length * sd.random_number(75, 85) / 100)
+    branch(vect.end_point, angle - sd.random_number(20, 30), length * sd.random_number(75, 85) / 100)
 
 
 def draw_fractal_tree():

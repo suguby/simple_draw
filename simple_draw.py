@@ -73,7 +73,7 @@ def _to_screen(x, y):
 
 def _to_screen_rect(left_bottom, right_top):
     """
-        Получить прямоуголник в экранных координатах, готовый к отрисовке
+        Получить прямоугольник в экранных координатах, готовый к отрисовке
     """
     width_height = (right_top.x - left_bottom.x, right_top.y - left_bottom.y)
     return pgl.Rect((left_bottom.x, resolution[1] - right_top.y), width_height)
@@ -86,7 +86,7 @@ def set_screen_size(width=600, height=600):
 
 def user_want_exit(sleep_time=0):
     """
-        проверка ввода от пользователя
+        Проверка ввода от пользователя
     """
     global _exit_performed
     if _exit_performed:
@@ -154,7 +154,7 @@ def sleep(seconds=0):
 
 def clear_screen():
     """
-        очистить экран
+        Очистить экран
     """
     _init()
     if _background:
@@ -165,7 +165,7 @@ def clear_screen():
 
 def get_mouse_state():
     """
-        получить состояние мыши - координаты и нажатую кнопку
+        Получить состояние мыши - координаты и нажатую кнопку
     """
     _init()
     mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
@@ -174,7 +174,7 @@ def get_mouse_state():
     # точка на экране, где находится мышь
 
     mouse_buttons = pygame.mouse.get_pressed()
-    # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
+    # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средняя кнопка нажата, правая кнопка нажата)
 
     return mouse_pos, mouse_buttons
 
@@ -182,14 +182,14 @@ def get_mouse_state():
 # Utils
 def _is_point(param):
     """
-        является ли параметр координатой?
+        Является ли параметр координатой?
     """
     return isinstance(param, Point)
 
 
 def _is_all_points(point_list):
     """
-        все ли элементы списка - координаты?
+        Все ли элементы списка - координаты?
     """
     return all([True for elem in point_list if not _is_point(elem)])
 
@@ -233,7 +233,7 @@ def random_color():
 
 def random_point():
     """
-        Сгенерировать случнайную точку внутри области рисования
+        Сгенерировать случайную точку внутри области рисования
     """
     return Point()
 
@@ -411,7 +411,7 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
 
 def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35, factor_c=60):
     """
-        нарисовать снежинку в точке center с длинной лучей length цветом color
+        Нарисовать снежинку в точке center с длинной лучей length цветом color
         factor_a - место ответвления лучиков
         factor_b - длина лучиков
         factor_c - угол отклонения лучиков
@@ -436,8 +436,8 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
     if restore_auto_flip:
         pygame.display.flip()
         _auto_flip = True
-        
-        
+
+
 # Point support
 class Point:
     """
@@ -471,9 +471,9 @@ class Point:
         return 'Point(x={}, y={})'.format(self.x, self.y)
 
 
-def get_point(x,y):
+def get_point(x, y):
     """
-        получить точку в координате (x,y)
+        Получить точку в координате (x,y)
     """
     return Point(x=x, y=y)
 
@@ -484,7 +484,7 @@ class Vector:
 
     def __init__(self, start_point, direction, length, width=1):
         """
-            Создать вектор из точки start_point в направлении direction (градусы) длинной lenght
+            Создать вектор из точки start_point в направлении direction (градусы) длинной length
             Внимание! Параметр width в следующей версии будет удален, используйте .draw(..., width)
         """
         self.start_point = start_point
