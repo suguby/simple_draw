@@ -11,7 +11,8 @@ import tempfile
 import time
 from random import choice, randint
 
-import turtle
+# import turtle
+from tkinter import *
 
 background_color = (0, 8, 98)
 resolution = (600, 600)
@@ -49,6 +50,9 @@ _mouse_buttons_state = [0, 0, 0]
 _mouse_click_time = 0.1     # Сколько времени в секундах после клика считать нажатой кнопку мыши
 _mouse_click_timings = [0, 0, 0]
 
+# tkinter variables
+_pen = None
+
 
 # Core functions
 
@@ -67,41 +71,103 @@ def _check_mouse_click_timings():
             _mouse_buttons_state[button] = 0
 
 
+class TPen(Frame):
+    def __init__(self):
+        self.root = Tk()
+        Frame.__init__(self, self.root)
+        self.root.title(caption)
+        # помещаем окно поцентру экрана, задаём размеры, цвет фона и отключаем изменение размера мышью
+        self.window_x = (self.root.winfo_screenwidth() - resolution[0]) // 2
+        self.window_y = (self.root.winfo_screenheight() - resolution[1]) // 2
+        self.root.geometry(f'{resolution[0]}x{resolution[1]}+{self.window_x}+{self.window_y}')
+        self.root.configure(background=self.rgb_to_hex(background_color))
+        self.root.resizable(False, False)
+        self.root.update()
+
+        # кидаем на фрейм холст на котором будем рисовать
+        self.canvas = Canvas(self, borderwidth=0, highlightthickness=0)
+        self.canvas.configure(background=self.rgb_to_hex(background_color))
+
+        self.pack(fill=BOTH, expand=1)
+        self.update_screen()
+
+    def draw_line(self, points_list, color='', width=1):
+        self.canvas.create_line(*self.points_to_coords(points_list), fill=self.rgb_to_hex(color), width=width)
+
+    def draw_polygon(self, points_list, fill_color='', outline_color='', width=1):
+        self.canvas.create_polygon(*self.points_to_coords(points_list), width=width,
+                                   outline=self.rgb_to_hex(outline_color), fill=self.rgb_to_hex(fill_color))
+
+    def draw_ellipse(self, left_bottom, right_top, fill_color='', outline_color='', width=1):
+        self.canvas.create_oval(*self.points_to_coords([left_bottom, right_top]), width=width,
+                                outline=self.rgb_to_hex(outline_color), fill=self.rgb_to_hex(fill_color))
+
+    def draw_circle(self, center, radius, fill_color='', outline_color='', width=1):
+        left_bottom = Point(center.x - radius, center.y - radius)
+        right_top = Point(center.x + radius, center.y + radius)
+        self.canvas.create_oval(*self.points_to_coords([left_bottom, right_top]), width=width,
+                                outline=self.rgb_to_hex(outline_color), fill=self.rgb_to_hex(fill_color))
+
+    def draw_rectangle(self, left_bottom, right_top, fill_color='', outline_color='', width=1):
+        self.canvas.create_rectangle(*self.points_to_coords([left_bottom, right_top]), width=width,
+                                     outline=self.rgb_to_hex(outline_color), fill=self.rgb_to_hex(fill_color))
+
+    def update_screen(self):
+        self.canvas.pack(fill=BOTH, expand=1)
+        self.canvas.update()
+
+    def clear_screen(self):
+        self.canvas.delete("all")
+
+    @staticmethod
+    def rgb_to_hex(rgb):
+        if rgb:
+            return '#' + ''.join(f'{c:02x}' for c in rgb)
+        return ''
+
+    @staticmethod
+    def points_to_coords(points_list):
+        return (coord for point in points_list for coord in point.to_screen())
+
+
+
 def _init():
     """
         Инициализация экрана для рисования
     """
-    global _screen, _turtle, _is_inited, _mouse_buttons_state
+    global _screen, _turtle, _is_inited, _mouse_buttons_state, _pen
     _check_mouse_click_timings()
     if not _is_inited:
-        _screen = turtle.Screen()
-        _screen.title(caption)
-        # Докидываем несколько пикселей чтобы избавиться от полос прокрутки
-        _screen.setup(resolution[0] + _scroll_koef[0], resolution[1] + _scroll_koef[1])
-        _screen.setworldcoordinates(8, 7, *resolution)
-        _screen.colormode(255)
-        _screen.bgcolor(background_color)
-        _screen.tracer(n=0)
-        _screen.update()
+        _pen = TPen()
 
-        _turtle = turtle.Turtle()
-        _turtle.screen = _screen
-        _turtle.hideturtle()
-        _turtle.penup()
-        _turtle.speed(0)
+        # _screen = turtle.Screen()
+        # _screen.title(caption)
+        # # Докидываем несколько пикселей чтобы избавиться от полос прокрутки
+        # _screen.setup(resolution[0] + _scroll_koef[0], resolution[1] + _scroll_koef[1])
+        # _screen.setworldcoordinates(8, 7, *resolution)
+        # _screen.colormode(255)
+        # _screen.bgcolor(background_color)
+        # _screen.tracer(n=0)
+        # _screen.update()
+        #
+        # _turtle = turtle.Turtle()
+        # _turtle.screen = _screen
+        # _turtle.hideturtle()
+        # _turtle.penup()
+        # _turtle.speed(0)
 
         # черепаха у мыши обрабатывает только клики, поэтому немного поизвращаемся, чтобы приближенно сэмулировать
         # работу get_pressed из pygame
         # собираем функции-обработчики кликов мышью и вешаем их на клики
-        buttons_assoc = [1, 3, 2]   # у черепахи порядок кнопок мыши отличается от pygame, поэтому скорректируем его
-        for button in range(0, 3):
-            handler = _init_mouse_handlers(button)
-            _screen.onclick(handler, buttons_assoc[button])
-
-        _screen.onkey(_screen.bye, 'Q')
-        _screen.onkey(_screen.bye, 'q')
-        _screen.onkey(_screen.bye, 'Escape')
-        _screen.listen()
+        # buttons_assoc = [1, 3, 2]   # у черепахи порядок кнопок мыши отличается от pygame, поэтому скорректируем его
+        # for button in range(0, 3):
+        #     handler = _init_mouse_handlers(button)
+        #     _screen.onclick(handler, buttons_assoc[button])
+        #
+        # _screen.onkey(_screen.bye, 'Q')
+        # _screen.onkey(_screen.bye, 'q')
+        # _screen.onkey(_screen.bye, 'Escape')
+        # _screen.listen()
         _is_inited = True
 
 
@@ -109,7 +175,7 @@ def _to_screen(x, y):
     """
         Преобразовать координаты к экранным
     """
-    return int(x), int(y)
+    return int(x), resolution[1] - int(y)
 
 
 def _to_screen_rect(left_bottom, right_top):
@@ -139,7 +205,7 @@ def pause():
     """
         Завершение процесса рисования и ожидание закрытия окна
     """
-    turtle.done()
+    _pen.root.mainloop()
 
 
 def quit():
@@ -162,10 +228,10 @@ def finish_drawing():
     """
         Закончить рисование на экране и отобразить нарисованное
     """
-    global _auto_flip, _screen
+    global _auto_flip
     _init()
     _auto_flip = True
-    _screen.update()
+    _pen.update_screen()
 
 
 def sleep(seconds=0):
@@ -180,24 +246,24 @@ def clear_screen():
         очистить экран
     """
     _init()
-    _turtle.reset()
-    _turtle.shape('blank')
+    _pen.clear_screen()
 
 
 def get_mouse_state():
     """
         получить состояние мыши - координаты и нажатую кнопку
     """
-    _init()
-    canvas = _screen.getcanvas()
-    # знаю, что protected элементы лучше не трогать, но другого выбора нет. Но я его не изменяю, а только читаю
-    mouse_pos_x = canvas.winfo_pointerx() - _screen._root.winfo_rootx() - _scroll_koef[0]
-    mouse_pos_y = canvas.winfo_pointery() - _screen._root.winfo_rooty() - resolution[1]
-    mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
-    #  _mouse_buttons_state - кортеж вида (1,0,0),
-    #  где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
-    #
-    return mouse_pos, _mouse_buttons_state
+    # _init()
+    # canvas = _screen.getcanvas()
+    # # знаю, что protected элементы лучше не трогать, но другого выбора нет. Но я его не изменяю, а только читаю
+    # mouse_pos_x = canvas.winfo_pointerx() - _screen._root.winfo_rootx() - _scroll_koef[0]
+    # mouse_pos_y = canvas.winfo_pointery() - _screen._root.winfo_rooty() - resolution[1]
+    # mouse_pos = Point(x=mouse_pos_x, y=mouse_pos_y)
+    # #  _mouse_buttons_state - кортеж вида (1,0,0),
+    # #  где числа значат: (левая кнопка нажата, средня кнопка нажата, правая кнопка нажата)
+    # #
+    # return mouse_pos, _mouse_buttons_state
+    return 0, 0
 
 
 # Utils
@@ -304,6 +370,7 @@ def take_snapshot(file_name=None, path=None):
     """
         сделать снимок экрана и сохранить его в файл
     """
+    global _pen
     from PIL import Image, ImageGrab
     if file_name is None:
         now = datetime.datetime.now()
@@ -313,11 +380,12 @@ def take_snapshot(file_name=None, path=None):
         file_name = os.path.join(path, file_name)
     _init()
     # _screen.getcanvas().postscript(file=file_name + '.eps')
-    x = _screen._root.winfo_x()
-    y = _screen._root.winfo_y()
-    img = Image.open(file_name + '.eps')
-    img.save(file_name + '.png')
-    # ImageGrab.grab().crop((x, y, x+resolution[0], y+resolution[1])).save(file_name + '.gif')
+    # x = _screen._root.winfo_x()
+    # y = _screen._root.winfo_y()
+    # img = Image.open(file_name + '.eps')
+    # img.save(file_name + '.png')
+    ImageGrab.grab().crop((_pen.window_x, _pen.window_y,
+                           _pen.window_x + resolution[0], _pen.window_y + resolution[1])).save(file_name + '.gif')
 
 
 def _set_params(turtle, color, width):
@@ -341,14 +409,9 @@ def line(start_point, end_point, color=COLOR_YELLOW, width=1):
         print("'start_point' and 'end_point' params must be point (x,y,)")
         return
     _init()
-    _set_params(_turtle, color, width)
-    _turtle.penup()
-    _turtle.setpos(*start_point.to_screen())
-    _turtle.pendown()
-    _turtle.setpos(*end_point.to_screen())
-    _turtle.penup()
+    _pen.draw_line([start_point, end_point], color, width)
     if _auto_flip:
-        _screen.update()
+        _pen.update()
 
 
 def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
@@ -361,18 +424,13 @@ def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
         print("'point_list' param must contain only points (x,y,)")
         return
     _init()
-    converted_point_list = [pos.to_screen() for pos in point_list]
+    # создаём новую переменную, чтобы ненароком не изменить переданный список точек
+    points = list(point_list)
     if closed:
-        converted_point_list.append(converted_point_list[0])
-    _set_params(_turtle, color, width)
-    _turtle.penup()
-    _turtle.setpos(*converted_point_list[0])
-    _turtle.pendown()
-    for point in converted_point_list[1:]:
-        _turtle.setpos(*point)
-    _turtle.penup()
+        points.append(points[0])
+    _pen.draw_line(points, color=color, width=width)
     if _auto_flip:
-        _screen.update()
+        _pen.update()
 
 
 def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
@@ -387,17 +445,12 @@ def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
         print("'center_position' param must be point (x,y,)")
         return
     _init()
-    _set_params(_turtle, color, width)
-    _turtle.penup()
-    _turtle.setpos(center_position.to_screen()[0], center_position.to_screen()[1] - radius)
-    _turtle.pendown()
-    if not width:
-        _turtle.begin_fill()
-    _turtle.circle(radius)
-    _turtle.end_fill()
-    _turtle.penup()
+    if width:
+        _pen.draw_circle(center=center_position, radius=radius, outline_color=color, width=width)
+    else:
+        _pen.draw_circle(center=center_position, radius=radius, fill_color=color, width=width)
     if _auto_flip:
-        _screen.update()
+        _pen.update()
 
 
 def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
@@ -411,26 +464,12 @@ def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         print("'left_bottom' and 'right_top' params must be point (x,y,)")
         return
     _init()
-    width_height = _to_screen_rect(left_bottom, right_top)
-    _set_params(_turtle, color, width)
-    _turtle.penup()
-
-    # у черепашки нет своего овала, так что немного несложной математики
-    _turtle.goto(left_bottom.to_screen()[0] + width_height[0] // 2,
-                 left_bottom.to_screen()[1] + width_height[1])
-    _turtle.pendown()
-    if not width:
-        _turtle.begin_fill()
-    for i in range(0, 361, 10):
-        t = i * (math.pi / 180)
-        x = width_height[0] * math.sin(t) // 2
-        y = width_height[1] * math.cos(t) // 2
-        _turtle.goto(x + left_bottom.to_screen()[0] + width_height[0] // 2,
-                     y + left_bottom.to_screen()[1] + width_height[1] // 2)
-    _turtle.penup()
-    _turtle.end_fill()
+    if width:
+        _pen.draw_ellipse(left_bottom, right_top, outline_color=color, width=width)
+    else:
+        _pen.draw_ellipse(left_bottom, right_top, fill_color=color, width=width)
     if _auto_flip:
-        _screen.update()
+        _pen.update()
 
 
 def square(left_bottom, side=50, color=COLOR_YELLOW, width=0):
@@ -457,14 +496,12 @@ def rectangle(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         print("'left_bottom' and 'right_top' params must be point (x,y,)")
         return
     _init()
-    points = [left_bottom, Point(left_bottom.x, right_top.y),
-              right_top, Point(right_top.x, left_bottom.y)]
-    if not width:
-        _turtle.begin_fill()
-    lines(points, color=color, width=width, closed=True)
-    _turtle.end_fill()
+    if width:
+        _pen.draw_rectangle(left_bottom, right_top, outline_color=color, width=width)
+    else:
+        _pen.draw_rectangle(left_bottom, right_top, fill_color=color, width=width)
     if _auto_flip:
-        _screen.update()
+        _pen.update()
 
 
 def polygon(point_list, color=COLOR_YELLOW, width=1):
@@ -478,12 +515,12 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
         print("'point_list' param must contain only points (x,y,)")
         return
     _init()
-    if not width:
-        _turtle.begin_fill()
-    lines(point_list, color=color, width=width, closed=True)
-    _turtle.end_fill()
+    if width:
+        _pen.draw_polygon(point_list, outline_color=color, width=width)
+    else:
+        _pen.draw_polygon(point_list, fill_color=color, width=width)
     if _auto_flip:
-        _screen.update()
+        _pen.update()
 
 
 def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35, factor_c=60):
@@ -511,7 +548,7 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
         right_sub_arm = Vector(arm.end_point, angle - factor_c, length * factor_b)
         right_sub_arm.draw(color)
     if restore_auto_flip:
-        _screen.update()
+        _pen.update_screen()
         _auto_flip = True
 
 
@@ -526,7 +563,7 @@ class Point:
         self._y = random_number(1, resolution[1]) if y is None else int(y)
 
     def to_screen(self):
-        return int(self._x), int(self._y)
+        return int(self._x), resolution[1] - int(self._y)
 
     @property
     def x(self):
