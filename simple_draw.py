@@ -394,7 +394,7 @@ def rectangle(left_bottom, right_top, color=COLOR_YELLOW, width=0):
 
 def polygon(point_list, color=COLOR_YELLOW, width=1):
     """
-        Нарисовать прямоугольник цветом color
+        Нарисовать многоугольник цветом color
         Координаты вершин передаются в списке point_list
         Толщиной линии width.
         Если width==0 то заполнить цветом
