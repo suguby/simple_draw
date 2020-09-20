@@ -270,6 +270,8 @@ def draw_background():
     """
     if _background_image is not None:
         _screen.blit(_background_image, (0, 0))
+        if _auto_flip:
+            pygame.display.flip()
 
 
 def take_snapshot(file_name=None, path=None):
