@@ -32,6 +32,6 @@ setup(
     ],
     keywords='draw graphical primitives tutorial',
     install_requires=[
-        'pygame==2.0.0.dev10'
+        'pygame==2.0.0.dev24'
     ]
 )
