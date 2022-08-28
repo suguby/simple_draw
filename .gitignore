@@ -1,6 +1,7 @@
 .idea/
 tmp/
 .python-version
+venv/
 
 
 ### Python template
