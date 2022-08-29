@@ -445,11 +445,11 @@ class Point:
     """
 
     def __init__(self, x=None, y=None):
-        self._x = random_number(1, resolution[0]) if x is None else int(x)
-        self._y = random_number(1, resolution[1]) if y is None else int(y)
+        self._x = random_number(1, resolution[0]) if x is None else x
+        self._y = random_number(1, resolution[1]) if y is None else y
 
     def to_screen(self):
-        return int(self._x), resolution[1] - int(self._y)
+        return round(self._x), resolution[1] - round(self._y)
 
     @property
     def x(self):
@@ -457,7 +457,7 @@ class Point:
 
     @x.setter
     def x(self, value):
-        self._x = int(value)
+        self._x = value
 
     @property
     def y(self):
@@ -465,7 +465,7 @@ class Point:
 
     @y.setter
     def y(self, value):
-        self._y = int(value)
+        self._y = value
 
     def __str__(self):
         return 'Point(x={}, y={})'.format(self.x, self.y)
