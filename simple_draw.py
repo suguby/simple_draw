@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 """
     Библиотека для рисования графических примитивов
-    v 2.4
 """
 import datetime
 import math
@@ -10,9 +9,10 @@ import os
 import tempfile
 import time
 from random import choice, randint
+from typing import Any, Optional
 
 import pygame
-from pygame import locals as pgl
+from pygame import locals as pgl, Surface
 
 background_color = (0, 8, 98)
 resolution = (600, 600)
@@ -37,12 +37,12 @@ COLOR_DARK_CYAN = (0, 127, 127)
 COLOR_DARK_BLUE = (0, 0, 127)
 COLOR_DARK_PURPLE = (127, 0, 127)
 
-_is_inited = False
-_screen = None
-_background = None
-_exit_performed = False
-_auto_flip = True
-_background_image = None
+_is_inited: bool = False
+_screen: Optional[Surface] = None
+_background: Optional[Surface] = None
+_exit_performed: bool = False
+_auto_flip: bool = True
+_background_image: Optional[Surface] = None
 
 
 # Core functions
@@ -64,14 +64,14 @@ def _init():
         _is_inited = True
 
 
-def _to_screen(x, y):
+def _to_screen(x: int, y: int) -> tuple[int, int]:
     """
         Преобразовать координаты к экранным
     """
     return int(x), resolution[1] - int(y)
 
 
-def _to_screen_rect(left_bottom, right_top):
+def _to_screen_rect(left_bottom: 'Point', right_top: 'Point'):
     """
         Получить прямоугольник в экранных координатах, готовый к отрисовке
     """
@@ -79,12 +79,12 @@ def _to_screen_rect(left_bottom, right_top):
     return pgl.Rect((left_bottom.x, resolution[1] - right_top.y), width_height)
 
 
-def set_screen_size(width=600, height=600):
+def set_screen_size(width: int = 600, height: int = 600):
     global resolution
     resolution = (width, height)
 
 
-def user_want_exit(sleep_time=0):
+def user_want_exit(sleep_time: float = 0) -> bool:
     """
         Проверка ввода от пользователя
     """
@@ -145,9 +145,9 @@ def finish_drawing():
     pygame.display.flip()
 
 
-def sleep(seconds=0):
+def sleep(seconds: float = 0):
     """
-        Замереть на N секунд
+        Замереть на seconds секунд
     """
     time.sleep(seconds)
 
@@ -163,9 +163,13 @@ def clear_screen():
         pygame.display.flip()
 
 
-def get_mouse_state():
+def get_mouse_state() -> tuple['Point', tuple[bool, bool, bool]]:
     """
-        Получить состояние мыши - координаты и нажатую кнопку
+        Получить состояние мыши - точку на экране и нажатую кнопку.
+        Нажатые кнопки передаются в виде кортежа (True, False, False),
+        где bool значат
+        (левая кнопка нажата, средняя кнопка нажата, правая кнопка нажата)
+
     """
     _init()
     mouse_pos_x, mouse_pos_y = pygame.mouse.get_pos()
@@ -174,41 +178,42 @@ def get_mouse_state():
     # точка на экране, где находится мышь
 
     mouse_buttons = pygame.mouse.get_pressed()
-    # кортеж вида (1,0,0) где числа значат: (левая кнопка нажата, средняя кнопка нажата, правая кнопка нажата)
+    # кортеж вида (1,0,0) где числа значат:
+    # (левая кнопка нажата, средняя кнопка нажата, правая кнопка нажата)
 
     return mouse_pos, mouse_buttons
 
 
 # Utils
-def _is_point(param):
+def _is_point(param: Any) -> bool:
     """
         Является ли параметр координатой?
     """
     return isinstance(param, Point)
 
 
-def _is_all_points(point_list):
+def _is_all_points(point_list: list['Point']) -> bool:
     """
         Все ли элементы списка - координаты?
     """
     return all([True for elem in point_list if not _is_point(elem)])
 
 
-def invert_color(color):
+def invert_color(color: tuple[int, int, int]) -> tuple[int, ...]:
     """
         Инвертировать цвет (выдать комплиментарный по RGB)
     """
     return tuple(255 - i for i in color)
 
 
-def random_number(a=0, b=300):
+def random_number(a: int = 0, b: int = 300) -> int:
     """
         Выдать случайное целое из диапазона [a,b]
     """
     return randint(a, b)
 
 
-def random_color():
+def random_color() -> tuple[int, int, int]:
     """
         Выдать случайный цвет из набора предопределенных
     """
@@ -231,25 +236,25 @@ def random_color():
     return choice(colors)
 
 
-def random_point():
+def random_point() -> 'Point':
     """
         Сгенерировать случайную точку внутри области рисования
     """
     return Point()
 
 
-def _to_radians(angle):
+def _to_radians(angle: float) -> float:
     return (float(angle) / 180) * math.pi
 
 
-def sin(angle):
+def sin(angle: float) -> float:
     """
         Синус угла в градусах
     """
     return math.sin(_to_radians(angle))
 
 
-def cos(angle):
+def cos(angle: float) -> float:
     """
         Косинус угла в градусах
     """
@@ -277,9 +282,9 @@ def draw_background():
         _screen.blit(_background_image, (0, 0))
 
 
-def take_snapshot(file_name=None, path=None):
+def take_snapshot(file_name: str = None, path: str = None):
     """
-        сделать снимок экрана и сохранить его в файл
+        Сделать снимок экрана и сохранить его в файл
     """
     if file_name is None:
         now = datetime.datetime.now()
@@ -292,14 +297,17 @@ def take_snapshot(file_name=None, path=None):
 
 
 # Primitives
-def line(start_point, end_point, color=COLOR_YELLOW, width=1):
+def line(
+        start_point: 'Point', end_point: 'Point', 
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1,
+):
     """
-        Нарисовать линию цветом color
+        Нарисовать линию цветом color толщиной width
         Начиная с точки start
         Заканчивая точкой end
     """
     if not _is_all_points([start_point, end_point]):
-        print("'start_point' and 'end_point' params must be point (x,y,)")
+        print("'start_point' and 'end_point' params must be Point(x,y)")
         return
     _init()
     pygame.draw.line(_screen, color,
@@ -309,14 +317,17 @@ def line(start_point, end_point, color=COLOR_YELLOW, width=1):
         pygame.display.flip()
 
 
-def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
+def lines(
+        point_list: list['Point'], color: tuple[int, int, int] = COLOR_YELLOW, 
+        closed: bool = False, width: int = 1,
+):
     """
-        Нарисовать ломанную линию цветом color
+        Нарисовать ломанную линию цветом color толщиной width
         Координаты вершин передаются в списке point_list
         Если closed=True - соединить первую и последнюю точки
     """
     if not _is_all_points(point_list):
-        print("'point_list' param must contain only points (x,y,)")
+        print("'point_list' param must contain only Point(x,y)")
         return
     _init()
     converted_point_list = [pos.to_screen() for pos in point_list]
@@ -325,7 +336,10 @@ def lines(point_list, color=COLOR_YELLOW, closed=False, width=1):
         pygame.display.flip()
 
 
-def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
+def circle(
+        center_position: 'Point', radius: int = 50, 
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1
+):
     """
         Нарисовать окружность цветом color
         С центром в точке center_position
@@ -334,7 +348,7 @@ def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
         Если width==0 то заполнить цветом
     """
     if not _is_point(center_position):
-        print("'center_position' param must be point (x,y,)")
+        print("'center_position' param must be Point(x,y)")
         return
     _init()
     pygame.draw.circle(_screen, color,
@@ -343,7 +357,10 @@ def circle(center_position, radius=50, color=COLOR_YELLOW, width=1):
         pygame.display.flip()
 
 
-def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
+def ellipse(
+        left_bottom: 'Point', right_top: 'Point',
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 0
+):
     """
         Нарисовать эллипс цветом color
         Вписанный в прямоугольник (left_bottom, right_top)
@@ -351,7 +368,7 @@ def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         Если width==0 то заполнить цветом
     """
     if not _is_all_points([left_bottom, right_top]):
-        print("'left_bottom' and 'right_top' params must be point (x,y,)")
+        print("'left_bottom' and 'right_top' params must be Point(x,y)")
         return
     _init()
     rect = _to_screen_rect(left_bottom, right_top)
@@ -360,25 +377,31 @@ def ellipse(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         pygame.display.flip()
 
 
-def square(left_bottom, side=50, color=COLOR_YELLOW, width=0):
+def square(
+        left_bottom: 'Point', side: int = 50, 
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 0,
+):
     """
         Нарисовать квадрат цветом color
         С левой нижней вершиной в точке left_bottom
         С длинной стороны side
         Толщиной линии width
-        Если width==0 то заполнить цветом
+        Если width==0, то заполнить цветом
     """
     right_top = Point(left_bottom.x + side, left_bottom.y + side)
     rectangle(left_bottom, right_top, color, width)
 
 
-def rectangle(left_bottom, right_top, color=COLOR_YELLOW, width=0):
+def rectangle(
+        left_bottom: 'Point', right_top: 'Point', 
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 0,
+):
     """
         Нарисовать прямоугольник цветом color
         С левой нижней вершиной в точке left_bottom
         С правой верхней вершиной в точке right_top
         Толщиной линии width
-        Если width==0 то заполнить цветом
+        Если width==0, то заполнить цветом
     """
     if not _is_all_points([left_bottom, right_top]):
         print("'left_bottom' and 'right_top' params must be point (x,y,)")
@@ -392,12 +415,15 @@ def rectangle(left_bottom, right_top, color=COLOR_YELLOW, width=0):
         pygame.display.flip()
 
 
-def polygon(point_list, color=COLOR_YELLOW, width=1):
+def polygon(
+        point_list: list['Point'], 
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1,
+):
     """
         Нарисовать многоугольник цветом color
         Координаты вершин передаются в списке point_list
         Толщиной линии width.
-        Если width==0 то заполнить цветом
+        Если width==0, то заполнить цветом
     """
     if not _is_all_points(point_list):
         print("'point_list' param must contain only points (x,y,)")
@@ -409,7 +435,11 @@ def polygon(point_list, color=COLOR_YELLOW, width=1):
         pygame.display.flip()
 
 
-def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35, factor_c=60):
+def snowflake(
+        center: 'Point', length: int = 100,
+        color: tuple[int, int, int] = COLOR_YELLOW,
+        factor_a: float = 0.6, factor_b: float = 0.35, factor_c: float = 60,
+):
     """
         Нарисовать снежинку в точке center с длинной лучей length цветом color
         factor_a - место ответвления лучиков
@@ -440,15 +470,13 @@ def snowflake(center, length=100, color=COLOR_WHITE, factor_a=0.6, factor_b=0.35
 
 # Point support
 class Point:
-    """
-        Класс точки экрана
-    """
+    """Класс точки на экране"""
 
-    def __init__(self, x=None, y=None):
+    def __init__(self, x: float = None, y: float = None):
         self._x = random_number(1, resolution[0]) if x is None else int(x)
         self._y = random_number(1, resolution[1]) if y is None else int(y)
 
-    def to_screen(self):
+    def to_screen(self) -> tuple[int, int]:
         return int(self._x), resolution[1] - int(self._y)
 
     @property
@@ -456,7 +484,7 @@ class Point:
         return self._x
 
     @x.setter
-    def x(self, value):
+    def x(self, value: int):
         self._x = int(value)
 
     @property
@@ -464,28 +492,30 @@ class Point:
         return self._y
 
     @y.setter
-    def y(self, value):
+    def y(self, value: int):
         self._y = int(value)
 
     def __str__(self):
         return 'Point(x={}, y={})'.format(self.x, self.y)
 
 
-def get_point(x, y):
-    """
-        Получить точку в координате (x,y)
-    """
+def get_point(x: int, y: int) -> 'Point':
+    """Получить точку в координате (x,y)"""
     return Point(x=x, y=y)
 
 
 # Vector support
 class Vector:
-    """Класс математического вектора"""
+    """Класс вектора на экране"""
 
-    def __init__(self, start_point, direction, length, width=1):
+    def __init__(
+            self, start_point: Point, direction: float, 
+            length: float, width: int = 1,
+    ):
         """
             Создать вектор из точки start_point в направлении direction (градусы) длинной length
-            Внимание! Параметр width в следующей версии будет удален, используйте .draw(..., width)
+            Внимание! Параметр width в следующей версии будет удален, 
+            используйте .draw(..., width)
         """
         self.start_point = start_point
         direction = (direction * math.pi) / 180
@@ -494,15 +524,15 @@ class Vector:
         self.module = length
         self.width = width
 
-    def _determine_module(self):
+    def _determine_module(self) -> float:
         return math.sqrt(self.dx ** 2 + self.dy ** 2)
 
     @property
-    def end_point(self):
-        return Point(self.start_point.x + self.dx, self.start_point.y + self.dy, )
+    def end_point(self) -> Point:
+        return Point(self.start_point.x + self.dx, self.start_point.y + self.dy)
 
     @property
-    def angle(self):
+    def angle(self) -> float:
         if self.dx == 0:
             if self.dy >= 0:
                 return 90
@@ -514,36 +544,41 @@ class Vector:
                 angle += 180
         return angle
 
-    def add(self, vector2):
+    def add(self, vector2: 'Vector'):
         """Сложение векторов"""
         self.dx += vector2.dx
         self.dy += vector2.dy
         self.module = self._determine_module()
 
     def __str__(self):
-        return 'vector([%.2f,%.2f],{%.2f,%.2f})' % (self.dx, self.dy, self.angle, self.module)
+        return 'vector([%.2f,%.2f],{%.2f,%.2f})' % (
+            self.dx, self.dy, self.angle, self.module,
+        )
 
     def __repr__(self):
         return str(self)
 
-    def __nonzero__(self):
+    def __nonzero__(self) -> int:
         """Проверка на пустоту"""
         return int(self.module)
 
-    def draw(self, color=COLOR_YELLOW, width=None):
+    def draw(self, color: tuple[int, int, int] = COLOR_YELLOW, width: int = None):
         """
             Нарисовать вектор
         """
         width = width if width else self.width
-        line(start_point=self.start_point, end_point=self.end_point, color=color, width=width)
+        line(
+            start_point=self.start_point, end_point=self.end_point, 
+            color=color, width=width,
+        )
 
-    def is_tiny(self):
+    def is_tiny(self) -> bool:
         """
             Очень маленький вектор?
         """
         return self.module <= 3
 
-    def multiply(self, factor):
+    def multiply(self, factor: float):
         """
             Умножить вектор на скалярное число
         """
@@ -551,7 +586,7 @@ class Vector:
         self.dy *= factor
         self.module = self._determine_module()
 
-    def rotate(self, angle):
+    def rotate(self, angle: float):
         """
             Повернуть вектор на угол
         """
@@ -561,24 +596,33 @@ class Vector:
         self.module = self._determine_module()
 
     @property
-    def length(self):
+    def length(self) -> float:
         return self.module
 
 
-def get_vector(start_point, angle, length=100, width=1):
+def get_vector(
+        start_point: Point, angle: float, length: float = 100, width: int = 1,
+) -> Vector:
     """
         Получить вектор из точки start, в направлении angle, длиной length
         Внимание! Параметр width в следующей версии будет удален, используйте Vector.draw(..., width)
     """
-    return Vector(start_point=start_point, direction=angle, length=length, width=width)
+    return Vector(
+        start_point=start_point, direction=angle, length=length, width=width,
+    )
 
 
-def vector(start, angle, length, color=COLOR_YELLOW, width=1):
+def vector(
+        start: Point, angle: float, length: float, 
+        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1,
+) -> Optional[Point]:
     """
         Нарисовать вектор цветом color толщиной width
         Из точки start
         В направлении angle
         Длиной length
+        Цветом color
+        Толщиной width
     """
     if not _is_point(start):
         print("'start' param must be point (x,y,)")

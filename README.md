@@ -6,6 +6,12 @@ Pygame-based package for drawing graphical primitives for tutorial purpose.
 
 #### Changelog
 
+#### 2.9.0
+* ADD py311 support
+* ADD pygame 2.5 support
+* ADD annotations
+* FIX function docs
+
 #### 2.8.0
 * ADD py310 support
 * ADD pygame 2.1 support
