@@ -8,15 +8,29 @@ import math
 import os
 import tempfile
 import time
+import sys
 from random import choice, randint
 from typing import Any, Optional
+
+if sys.version_info.major == 2 or (sys.version_info.major == 3 and sys.version_info.minor < 9):
+    print()
+    print("""
+    Python versions before 3.9 are not supported. Install python 3.9 or over. 
+     
+    You also may downgrade simple_draw to version 2.8.x with command
+    pip install simple-draw<2.9.0
+    """)
+    sys.exit(1)
 
 import pygame
 from pygame import locals as pgl, Surface
 
+
 background_color = (0, 8, 98)
 resolution = (600, 600)
 caption = 'Draw the sky'
+
+Color = tuple[int, int, int]
 
 COLOR_WHITE = (255, 255, 255)
 COLOR_BLACK = (0, 0, 0)
@@ -199,7 +213,7 @@ def _is_all_points(point_list: list['Point']) -> bool:
     return all([True for elem in point_list if not _is_point(elem)])
 
 
-def invert_color(color: tuple[int, int, int]) -> tuple[int, ...]:
+def invert_color(color: Color) -> tuple[int, ...]:
     """
         Инвертировать цвет (выдать комплиментарный по RGB)
     """
@@ -213,7 +227,7 @@ def random_number(a: int = 0, b: int = 300) -> int:
     return randint(a, b)
 
 
-def random_color() -> tuple[int, int, int]:
+def random_color() -> Color:
     """
         Выдать случайный цвет из набора предопределенных
     """
@@ -295,11 +309,10 @@ def take_snapshot(file_name: str = None, path: str = None):
     _init()
     pygame.image.save(_screen, file_name)
 
-
 # Primitives
 def line(
         start_point: 'Point', end_point: 'Point', 
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1,
+        color: Color = COLOR_YELLOW, width: int = 1,
 ):
     """
         Нарисовать линию цветом color толщиной width
@@ -318,7 +331,7 @@ def line(
 
 
 def lines(
-        point_list: list['Point'], color: tuple[int, int, int] = COLOR_YELLOW, 
+        point_list: list['Point'], color: Color = COLOR_YELLOW,
         closed: bool = False, width: int = 1,
 ):
     """
@@ -338,7 +351,7 @@ def lines(
 
 def circle(
         center_position: 'Point', radius: int = 50, 
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1
+        color: Color = COLOR_YELLOW, width: int = 1
 ):
     """
         Нарисовать окружность цветом color
@@ -359,7 +372,7 @@ def circle(
 
 def ellipse(
         left_bottom: 'Point', right_top: 'Point',
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 0
+        color: Color = COLOR_YELLOW, width: int = 0
 ):
     """
         Нарисовать эллипс цветом color
@@ -379,7 +392,7 @@ def ellipse(
 
 def square(
         left_bottom: 'Point', side: int = 50, 
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 0,
+        color: Color = COLOR_YELLOW, width: int = 0,
 ):
     """
         Нарисовать квадрат цветом color
@@ -394,7 +407,7 @@ def square(
 
 def rectangle(
         left_bottom: 'Point', right_top: 'Point', 
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 0,
+        color: Color = COLOR_YELLOW, width: int = 0,
 ):
     """
         Нарисовать прямоугольник цветом color
@@ -417,7 +430,7 @@ def rectangle(
 
 def polygon(
         point_list: list['Point'], 
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1,
+        color: Color = COLOR_YELLOW, width: int = 1,
 ):
     """
         Нарисовать многоугольник цветом color
@@ -437,7 +450,7 @@ def polygon(
 
 def snowflake(
         center: 'Point', length: int = 100,
-        color: tuple[int, int, int] = COLOR_YELLOW,
+        color: Color = COLOR_YELLOW,
         factor_a: float = 0.6, factor_b: float = 0.35, factor_c: float = 60,
 ):
     """
@@ -562,7 +575,7 @@ class Vector:
         """Проверка на пустоту"""
         return int(self.module)
 
-    def draw(self, color: tuple[int, int, int] = COLOR_YELLOW, width: int = None):
+    def draw(self, color: Color = COLOR_YELLOW, width: int = None):
         """
             Нарисовать вектор
         """
@@ -614,7 +627,7 @@ def get_vector(
 
 def vector(
         start: Point, angle: float, length: float, 
-        color: tuple[int, int, int] = COLOR_YELLOW, width: int = 1,
+        color: Color = COLOR_YELLOW, width: int = 1,
 ) -> Optional[Point]:
     """
         Нарисовать вектор цветом color толщиной width
